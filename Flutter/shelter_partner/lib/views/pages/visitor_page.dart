@@ -105,9 +105,10 @@ class _VisitorPageState extends ConsumerState<VisitorPage>
         final originalUrl = (animal.photos != null && animal.photos!.isNotEmpty)
             ? animal.photos!.first.url
             : '';
-        if (originalUrl.contains("amazonaws") || originalUrl.contains("storage.googleapis.com")) {
+        if (originalUrl.contains("amazonaws") ||
+            originalUrl.contains("storage.googleapis.com")) {
           final fallbackUrl =
-              'https://cors-images-222422545919.us-central1.run.app?url=$originalUrl';
+              'https://us-central1-production-10b3e.cloudfunctions.net/cors-images?url=https://cors-images-222422545919.us-central1.run.app?url=$originalUrl';
           // Debugging print statements
           print('Preloading image for animal: ${animal.name}');
           print('Original URL: $originalUrl');
@@ -236,11 +237,14 @@ class _VisitorPageState extends ConsumerState<VisitorPage>
                                 imageUrl.isNotEmpty
                                     ? CachedNetworkImage(
                                         imageUrl: (animal.photos?.first.url
-                                              .contains('amazonaws.com') ?? false) ||
-                                            (animal.photos?.first.url
-                                              .contains('storage.googleapis.com') ?? false)
-                                          ? 'https://cors-images-222422545919.us-central1.run.app?url=${animal.photos?.first.url}'
-                                          : animal.photos?.first.url ?? '',
+                                                        .contains(
+                                                            'amazonaws.com') ??
+                                                    false) ||
+                                                (animal.photos?.first.url.contains(
+                                                        'storage.googleapis.com') ??
+                                                    false)
+                                            ? 'https://cors-images-222422545919.us-central1.run.app?url=${animal.photos?.first.url}'
+                                            : animal.photos?.first.url ?? '',
                                         fit: BoxFit.cover,
                                         width: double.infinity,
                                         height: double.infinity,
@@ -362,13 +366,19 @@ class _SlideshowScreenState extends State<SlideshowScreen> {
     final animal = _shuffledAnimals[_currentIndex];
     _currentAnimal = animal; // Set the current animal
     if (animal.photos != null && animal.photos!.isNotEmpty) {
-      _currentImageUrl = animal.photos!.first.url ?? '';
+      _currentImageUrl = animal.photos!.first.url;
     } else {
       _currentImageUrl = '';
     }
   }
 
   void _startSlideshow() {
+    if (_shuffledAnimals
+        .every((animal) => animal.photos == null || animal.photos!.isEmpty)) {
+      // No valid slides available
+      _currentImageUrl = '';
+      return;
+    }
     // Get the slideshow timer setting from account settings
     final accountSettings = widget.ref
         .read(accountSettingsViewModelProvider)
@@ -380,8 +390,11 @@ class _SlideshowScreenState extends State<SlideshowScreen> {
     // Start the timer to change images based on the slideshow timer setting
     _timer = Timer.periodic(Duration(seconds: slideshowTimer), (timer) {
       setState(() {
-        _currentIndex = (_currentIndex + 1) % _shuffledAnimals.length;
-        _setCurrentImage();
+        //Skip slides which do not contain image animal
+        do {
+          _currentIndex = (_currentIndex + 1) % _shuffledAnimals.length;
+          _setCurrentImage();
+        } while (_currentImageUrl.isEmpty && _currentIndex != 0);
       });
     });
   }

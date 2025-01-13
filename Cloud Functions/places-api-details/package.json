@@ -4,16 +4,16 @@
     "description": "Cloud function for Google Places Autocomplete",
     "main": "index.js",
     "scripts": {
-      "start": "functions-framework --target=getSuggestions"
+        "start": "functions-framework --target=getSuggestions"
     },
     "dependencies": {
-      "@google-cloud/functions-framework": "^3.1.0",
-      "axios": "^1.4.0",
-      "cors": "^2.8.5" 
+        "@google-cloud/functions-framework": "^3.1.0",
+        "autocomplete-cloud-function": "file:",
+        "axios": "^1.4.0",
+        "cors": "^2.8.5"
     },
     "engines": {
-      "node": ">=14"
+        "node": ">=14"
     },
     "license": "MIT"
-  }
-  
+}
