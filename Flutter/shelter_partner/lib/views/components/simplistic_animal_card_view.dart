@@ -21,7 +21,6 @@ import 'package:shelter_partner/views/components/take_out_confirmation_view.dart
 import 'package:uuid/uuid.dart';
 import 'package:icon_decoration/icon_decoration.dart';
 
-
 class SimplisticAnimalCardView extends ConsumerStatefulWidget {
   final Animal animal;
 
@@ -259,127 +258,158 @@ class _SimplisticAnimalCardViewState
                       }
                     : null,
                 child: Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
-                  child: 
-                  AnimalCardImage(curvedAnimation: _curvedAnimation, isPressed: isPressed, animal: animal)
-                ),
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: AnimalCardImage(
+                        curvedAnimation: _curvedAnimation,
+                        isPressed: isPressed,
+                        animal: animal)),
               ),
               const SizedBox(width: 10),
               // Animal details
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 10.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Name, symbol, and menu
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Flexible(
-                            child: Row(
-                              children: [
-                                Flexible(
-                                  child: Text(
-                                    animal.name,
-                                    style: const TextStyle(
-                                      fontFamily: 'CabinBold',
-                                      fontSize: 32.0,
-                                      fontWeight: FontWeight.w800,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                // const SizedBox(width: 5),
-                                
-                              ],
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.vertical,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // Name, symbol, and menu
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Flexible(
+                              child: LayoutBuilder(
+                                builder: (context, constraints) {
+                                  // Check if the name contains multiple words
+                                  final isSingleWord =
+                                      !animal.name.contains(' ');
+
+                                  if (isSingleWord) {
+                                    // Used FittedBox for single-word names
+                                    return FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        animal.name,
+                                        style: const TextStyle(
+                                          fontFamily: 'CabinBold',
+                                          fontSize: 32.0,
+                                          fontWeight: FontWeight.w800,
+                                        ),
+                                      ),
+                                    );
+                                  } else {
+                                    return Text(
+                                      animal.name,
+                                      style: const TextStyle(
+                                        fontFamily: 'CabinBold',
+                                        fontSize: 32.0,
+                                        fontWeight: FontWeight.w800,
+                                      ),
+                                      softWrap: true,
+                                      overflow: TextOverflow.visible,
+                                      maxLines: 2,
+                                    );
+                                  }
+                                },
+                              ),
                             ),
-                          ),
-                          PopupMenuButton<String>(
-                            offset: const Offset(0, 40),
-                            onSelected: (value) {
-                              // Handle menu item selection
-                              switch (value) {
-                                case 'Details':
-                                  context.push('/enrichment/details',
-                                      extra: animal);
-                                  break;
-                                case 'Add Note':
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) =>
-                                        AddNoteView(animal: animal),
-                                  );
-                                  break;
-                                case 'Add Log':
-                                  showDialog(
+                            PopupMenuButton<String>(
+                              offset: const Offset(0, 40),
+                              onSelected: (value) {
+                                // Handle menu item selection
+                                switch (value) {
+                                  case 'Details':
+                                    context.push('/enrichment/details',
+                                        extra: animal);
+                                    break;
+                                  case 'Add Note':
+                                    showDialog(
                                       context: context,
                                       builder: (context) =>
-                                          AddLogView(animal: animal));
-                                  break;
-                              }
-                            },
-                            itemBuilder: (BuildContext context) {
-                              final appUser = ref.read(appUserProvider);
-                              final accountSettings = ref
-                                  .read(accountSettingsViewModelProvider)
-                                  .value;
+                                          AddNoteView(animal: animal),
+                                    );
+                                    break;
+                                  case 'Add Log':
+                                    showDialog(
+                                        context: context,
+                                        builder: (context) =>
+                                            AddLogView(animal: animal));
+                                    break;
+                                }
+                              },
+                              itemBuilder: (BuildContext context) {
+                                final appUser = ref.read(appUserProvider);
+                                final accountSettings = ref
+                                    .read(accountSettingsViewModelProvider)
+                                    .value;
 
-                              final menuItems = {'Details', 'Add Note'};
-                              if (appUser?.type == "admin" &&
-                                  accountSettings!.accountSettings?.mode ==
-                                      "Admin" &&
-                                  animal.inKennel) {
-                                menuItems.add('Add Log');
-                              }
+                                final menuItems = {'Details', 'Add Note'};
+                                if (appUser?.type == "admin" &&
+                                    accountSettings!.accountSettings?.mode ==
+                                        "Admin" &&
+                                    animal.inKennel) {
+                                  menuItems.add('Add Log');
+                                }
 
-                              return menuItems.map((String choice) {
-                                return PopupMenuItem<String>(
-                                  value: choice,
-                                  child: Text(choice),
-                                );
-                              }).toList();
-                            },
-                            icon: const Icon(Icons.more_vert),
-                          ),
-                        ],
-                      ),
-                      // Location
-
-                      Row(
-                        children: [
-                          Text(animal.location,
-                              style: TextStyle(
+                                return menuItems.map((String choice) {
+                                  return PopupMenuItem<String>(
+                                    value: choice,
+                                    child: Text(choice),
+                                  );
+                                }).toList();
+                              },
+                              icon: const Icon(Icons.more_vert),
+                            ),
+                          ],
+                        ),
+                        // Location
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                animal.location,
+                                style: TextStyle(
                                   fontFamily: 'CabinBold',
                                   fontSize: 25,
-                                  color: Colors.grey.shade800)),
-                        ],
-                      ),
-
-                      // Last Let out
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            _timeAgo(
-                                widget.animal.inKennel
-                                    ? animal.logs.last.endTime.toDate()
-                                    : animal.logs.last.startTime.toDate(),
-                                widget.animal.inKennel),
-                            style: TextStyle(
-                              color: Colors.grey.shade600,
-                              fontFamily: 'CabinBold',
+                                  color: Colors.grey.shade800,
+                                ),
+                                softWrap: true,
+                                overflow: TextOverflow.visible,
+                                maxLines: 2,
+                              ),
                             ),
-                          ),
-                          if (animal.symbol.isNotEmpty)
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                                    child: _buildIcon(animal.symbol, animal.symbolColor),
-                                  ),
-                        ],
-                      ),
-                    ],
+                          ],
+                        ),
+
+                        // Last Let out
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              _timeAgo(
+                                  widget.animal.inKennel
+                                      ? animal.logs.last.endTime.toDate()
+                                      : animal.logs.last.startTime.toDate(),
+                                  widget.animal.inKennel),
+                              style: TextStyle(
+                                color: Colors.grey.shade600,
+                                fontFamily: 'CabinBold',
+                              ),
+                            ),
+                            if (animal.symbol.isNotEmpty)
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: _buildIcon(
+                                    animal.symbol, animal.symbolColor),
+                              ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -408,21 +438,20 @@ Widget _buildIcon(String symbol, String symbolColor) {
       return const SizedBox.shrink(); // No icon for default case
   }
 
-  return DecoratedIcon(icon: Icon(
-    iconData,
-    color: _parseColor(symbolColor),
-    size: 24, // Original size
-  ),
-  
-  // decoration: const IconDecoration(
-  //   border: IconBorder(
-  //     color: Colors.black,
-  //     width: 0.75,
-  //   )
-  // ),
+  return DecoratedIcon(
+    icon: Icon(
+      iconData,
+      color: _parseColor(symbolColor),
+      size: 24, // Original size
+    ),
+
+    // decoration: const IconDecoration(
+    //   border: IconBorder(
+    //     color: Colors.black,
+    //     width: 0.75,
+    //   )
+    // ),
   );
-  
-  
 }
 
 Color _parseColor(String colorString) {
@@ -453,4 +482,3 @@ Color _parseColor(String colorString) {
       return Colors.transparent; // Default case if color is not recognized
   }
 }
-
