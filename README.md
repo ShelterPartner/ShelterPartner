@@ -77,3 +77,18 @@ Feel free to use your issue thread to communicate. Contributors will only be ass
   
   - Issue #377: Mouse pointer not set to correct state ($10) **_Just to have it written down but you can optionally accept it_**
 </details>
+
+
+## How Bounties Work
+
+1. **Starting Bounty**:  
+   - New bounty issues start at **$10**
+   - Must include `Bounty: $10` in the issue body
+
+2. **Auto-Increment Rules**:  
+   - Increases by **$10** every week (7 days)
+   - Maximum bounty cap: **$100**
+   - Only applies to:
+     - Open issues
+     - With the `bounty` label
+     - No assignee
