@@ -1,9 +1,8 @@
 name: Sync Public Repo with Deployment Repo
 
 on:
-  push:
-    branches:
-      - main  # Change to your main branch if different
+  push: #any push
+    
 
 jobs:
   sync-repo:
@@ -30,7 +29,15 @@ jobs:
 
     - name: Sync changes to Public Directory in Deployment Repository
       run: |
-        rsync -av --delete --exclude='.git' --exclude='.github' --exclude='private-repo' ./ private-repo/Public/
+        rsync -av --delete \
+          --exclude='.git' \
+          --exclude='.github' \
+          --exclude='private-repo' \
+          --exclude='config/production.json' \  # Exclude production config
+          --exclude='*.env' \                   # Exclude all .env files
+          --exclude='credentials*.json' \        # Exclude credential files
+          --exclude='secrets/*' \                # Exclude entire secrets directory
+          ./ private-repo/Public/
         cd private-repo
         git config --global user.email "jonesjar222@gmail.com"
         git config --global user.name "JaredDanielJones"
